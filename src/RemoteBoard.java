@@ -62,6 +62,18 @@ public class RemoteBoard extends UnicastRemoteObject implements IRemoteBoard {
         }
     }
 
+    @Override
+    public void addChat(String username, String msg){
+        try{
+            String newMsg = username + ": " + msg + "\n";
+            for (IClientRemote client: clients){
+                client.updateChat(newMsg);
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
 
 
 

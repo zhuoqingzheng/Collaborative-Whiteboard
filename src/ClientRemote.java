@@ -20,6 +20,7 @@ public class ClientRemote extends UnicastRemoteObject implements IClientRemote {
         this.remoteBoard = remoteBoard;
         this.whiteboard.setClientRemote(this);
         this.whiteboard.getCanvas().setClientRemote(this);
+        this.whiteboard.getChatPanel().setClientRemote(this);
         this.username = username;
         whiteboard.addWindowListener(new WindowAdapter() {
             @Override
@@ -56,5 +57,15 @@ public class ClientRemote extends UnicastRemoteObject implements IClientRemote {
     @Override
     public void receiveText(String text, Point position, Color color) throws RemoteException{
         whiteboard.addText(text, position, color);
+    }
+
+    @Override
+    public void sendChat(String msg) throws RemoteException{
+        remoteBoard.addChat(username,msg);
+    }
+
+    @Override
+    public void updateChat(String newMsg){
+        whiteboard.updateChat(newMsg);
     }
 }

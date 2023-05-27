@@ -20,7 +20,7 @@ public class CreateWhiteboard {
             //Retrieve the stub/proxy for the remote math object from the registry
             IRemoteBoard remoteBoard = (IRemoteBoard) registry.lookup("JoinBoard");
             WhiteBoard whiteBoard = new WhiteBoard();
-            if (args.length > )
+
             ClientRemote clientRemote = new ClientRemote("jojo",whiteBoard, remoteBoard);
             //whiteBoard.setClientRemote(clientRemote);
             remoteBoard.addClient(clientRemote);

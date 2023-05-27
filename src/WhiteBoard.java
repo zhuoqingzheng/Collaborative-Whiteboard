@@ -8,6 +8,7 @@ import java.awt.event.ActionListener;
 public class WhiteBoard extends JFrame{
     private JPanel panel;
     private JPanel panel2;
+    private ChatPanel chatPanel;
     private Canvas canvas;
     private JPanel menuPanel;
     private ClientRemote clientRemote;
@@ -23,20 +24,23 @@ public class WhiteBoard extends JFrame{
     public void initialize(){
         setTitle("Frame One");
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        setSize(1000, 700);
+        setSize(1000, 900);
         setLocationRelativeTo(null);
         setResizable(false);
         panel = new JPanel();
-        panel2 = new JPanel();
-        BoxLayout boxLayout = new BoxLayout(panel2, BoxLayout.Y_AXIS);
 
+        chatPanel = new ChatPanel();
+        panel2 = new JPanel();
+        BoxLayout boxLayout3 = new BoxLayout(chatPanel,BoxLayout.Y_AXIS);
+        BoxLayout boxLayout = new BoxLayout(panel2, BoxLayout.Y_AXIS);
+        chatPanel.setLayout(boxLayout3);
         panel2.setLayout(boxLayout);
         menuPanel = createToolMenu();
 
 
 
 
-        panel.setSize(100,100);
+        panel.setSize(100,500);
         panel.setBackground(Color.CYAN);
 
         JTextArea textField = new JTextArea();
@@ -47,17 +51,20 @@ public class WhiteBoard extends JFrame{
         textField.setPreferredSize(new Dimension(300,200));
         //textField.setSize(100,100);
         //textField.setMargin(new Insets(5,10,100,10));
-        panel.add(textField);
-        panel.add(chatBox);
+        //panel3.add(textField);
+        //panel3.add(Box.createVerticalStrut(40));
+        //panel3.add(chatBox);
 
         for (int i = 1; i<= 4; i++){
             JButton button = new JButton("Button " + Integer.toString((i)));
             button.setFocusable(false);
             button.setMargin(new Insets(3,3,3,3));
             panel2.add(button);
-            panel2.add(Box.createVerticalStrut(20));
+            panel2.add(Box.createVerticalStrut(10));
+
         }
-        panel.add(panel2);
+        //panel.add(panel3);
+        panel.add(chatPanel);
         BorderLayout borderLayout = new BorderLayout();
         borderLayout.setHgap(10);
         borderLayout.setVgap(10);
@@ -68,7 +75,7 @@ public class WhiteBoard extends JFrame{
         //add(new JButton("SOUTH"), BorderLayout.SOUTH);
         //add(new JButton("CENTER"), BorderLayout.CENTER);
 
-        panel.setSize(100,500);
+        //panel.setSize(100,500);
         add(panel, BorderLayout.SOUTH);
         add(canvas, BorderLayout.CENTER);
         //add(panel2,BorderLayout.SOUTH);
@@ -193,5 +200,13 @@ public class WhiteBoard extends JFrame{
     }
     public Canvas getCanvas() {
         return canvas;
+    }
+
+    public ChatPanel getChatPanel() {
+        return chatPanel;
+    }
+
+    public void updateChat(String msg){
+        chatPanel.updateChat(msg);
     }
 }
