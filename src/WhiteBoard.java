@@ -3,6 +3,7 @@ import javax.swing.JFrame;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 
 
 public class WhiteBoard extends JFrame{
@@ -11,6 +12,7 @@ public class WhiteBoard extends JFrame{
     private ChatPanel chatPanel;
     private Canvas canvas;
     private JPanel menuPanel;
+    private String roomId;
     private ClientRemote clientRemote;
     private String currentTool;
     public WhiteBoard(){
@@ -182,8 +184,8 @@ public class WhiteBoard extends JFrame{
         return menuPanel;
     }
 
-    public void setCanvas(Canvas canvas) {
-        this.canvas = canvas;
+    public void setCanvas(ArrayList<Canvas.StoredShape> shapes, ArrayList<Canvas.TextNode> texts){
+            canvas.setCanvas(shapes,texts);
     }
 
     public void addShape(Shape shape, Color color){
@@ -209,4 +211,13 @@ public class WhiteBoard extends JFrame{
     public void updateChat(String msg){
         chatPanel.updateChat(msg);
     }
+
+    public String getRoomId(){
+        return roomId;
+    }
+
+    public void shutdown() {
+        System.exit(0);
+    }
+
 }

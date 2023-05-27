@@ -7,7 +7,7 @@ import java.awt.event.WindowEvent;
 
 
 
-public class CreateWhiteboard {
+public class JoinWhiteboard {
 
     public static void main(String[] args) {
 
@@ -24,9 +24,8 @@ public class CreateWhiteboard {
 
                 //Retrieve the stub/proxy for the remote math object from the registry
                 IRemoteBoard remoteBoard = (IRemoteBoard) registry.lookup("JoinBoard");
-
-                if (remoteBoard.checkRoomExist(roomID)){
-                    JOptionPane.showMessageDialog(null,"Room Already Exist");
+                if (!remoteBoard.checkRoomExist(roomID)){
+                    JOptionPane.showMessageDialog(null,"Room Does Not Exist");
                     System.exit(0);
                 }
                 if (remoteBoard.checkUserExist(username)){
@@ -34,12 +33,9 @@ public class CreateWhiteboard {
                     JOptionPane.showMessageDialog(null,"Username Already Exist");
                     System.exit(0);
                 }
-
-
-
                 WhiteBoard whiteBoard = new WhiteBoard();
-
-                ClientRemote clientRemote = new ClientRemote(args[2],whiteBoard, remoteBoard,true);
+                whiteBoard.setCanvas(remoteBoard.getShapes(roomID),remoteBoard.getTexts(roomID));
+                ClientRemote clientRemote = new ClientRemote(username,whiteBoard, remoteBoard,false);
 
                 //whiteBoard.setClientRemote(clientRemote);
                 remoteBoard.addClient(clientRemote,roomID);
@@ -47,10 +43,6 @@ public class CreateWhiteboard {
             else{
                 System.out.println("Wrong Command");
             }
-
-
-
-
 
 
         }catch(Exception e) {

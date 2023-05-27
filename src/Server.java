@@ -19,7 +19,9 @@ public class Server {
 
             remoteBoard = new RemoteBoard();
             //Publish the remote object's stub in the registry under the name "Compute"
-            registry = LocateRegistry.getRegistry();
+
+            registry = LocateRegistry.getRegistry(Integer.parseInt(args[0]));
+
             //registry.bind("MathCompute", remoteMath);
             registry.bind("JoinBoard",remoteBoard);
             System.out.println("Board Server Ready");
@@ -35,6 +37,8 @@ public class Server {
     private static void unbind() {
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             try {
+                remoteBoard.shutdown();
+                System.out.println("lalalalala");
                 registry.unbind("JoinBoard");
                 UnicastRemoteObject.unexportObject(remoteBoard, true);
                 System.out.println("Board Server shutdown successfully");

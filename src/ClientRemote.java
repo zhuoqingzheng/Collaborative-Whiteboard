@@ -15,9 +15,12 @@ public class ClientRemote extends UnicastRemoteObject implements IClientRemote {
     private WhiteBoard whiteboard;  // a GUI class representing the whiteboard
     private String username;
     private IRemoteBoard remoteBoard;
-    public ClientRemote(String username, WhiteBoard whiteboard, IRemoteBoard remoteBoard) throws RemoteException {
+
+    private Boolean isAdmin;
+    public ClientRemote(String username, WhiteBoard whiteboard, IRemoteBoard remoteBoard,Boolean isAdmin) throws RemoteException {
         this.whiteboard = whiteboard;
         this.remoteBoard = remoteBoard;
+        this.isAdmin = isAdmin;
         this.whiteboard.setClientRemote(this);
         this.whiteboard.getCanvas().setClientRemote(this);
         this.whiteboard.getChatPanel().setClientRemote(this);
@@ -67,5 +70,33 @@ public class ClientRemote extends UnicastRemoteObject implements IClientRemote {
     @Override
     public void updateChat(String newMsg){
         whiteboard.updateChat(newMsg);
+    }
+
+    @Override
+    public boolean getIsAdmin() throws RemoteException{
+        return isAdmin;
+    }
+
+    @Override
+    public Canvas getCanvas() throws RemoteException{
+        return whiteboard.getCanvas();
+    }
+
+
+    @Override
+    public ArrayList<Canvas.StoredShape> getShapes(String roomId) throws RemoteException{
+        return whiteboard.getCanvas().getShapes();
+    }
+
+    @Override
+    public ArrayList<Canvas.TextNode> getTexts(String roomId) throws RemoteException{
+        return whiteboard.getCanvas().getTexts();
+    }
+
+    @Override
+    public void shutdown() throws RemoteException{
+        JOptionPane.showMessageDialog(null,"Server is disconnected");
+        whiteboard.shutdown();
+        //System.exit(0);
     }
 }

@@ -20,7 +20,7 @@ public class ChatPanel extends JPanel {
     }
 
     private void init() {
-        chatHistory = new JTextArea(12,20);
+        chatHistory = new JTextArea(12,28);
         chatHistory.setEditable(false);
 
         chatInput = new JTextField();

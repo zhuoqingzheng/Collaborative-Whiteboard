@@ -4,6 +4,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.geom.*;
 import java.util.ArrayList;
+import java.io.Serializable;
 
 public class Canvas extends JPanel {
     private static final String RECTANGLE = "RECTANGLE";
@@ -36,16 +37,21 @@ public class Canvas extends JPanel {
             public void mousePressed(MouseEvent e) {
                 startPoint = e.getPoint();
                 if (currentTool.equals(TEXT)) {
-                    tempText = new TextNode(JOptionPane.showInputDialog("Input text:"), startPoint,currentColor);
-                    try {
-                        clientRemote.sendText(tempText.text, startPoint,currentColor);
-                    }
-                    catch (Exception f){
-                        f.printStackTrace();
-                    }
-                    texts.add(tempText);
+                    String textString = JOptionPane.showInputDialog("Input text:");
 
-                    repaint();
+                    if (textString != null){
+                        tempText = new TextNode(textString, startPoint,currentColor);
+                        try {
+                            clientRemote.sendText(tempText.text, startPoint,currentColor);
+                        }
+                        catch (Exception f){
+                            f.printStackTrace();
+                        }
+                        texts.add(tempText);
+
+                        repaint();
+                    }
+
                 }else {
                     createShape();
                 }
@@ -234,7 +240,21 @@ public class Canvas extends JPanel {
 
         repaint();
     }
-    public class StoredShape{
+
+    public void setCanvas(ArrayList<StoredShape> shapes, ArrayList<TextNode> texts){
+        this.shapes = shapes;
+        this.texts = texts;
+        repaint();
+    }
+
+    public ArrayList<StoredShape> getShapes(){
+        return shapes;
+    }
+    public ArrayList<TextNode> getTexts(){
+        return texts;
+    }
+
+    public class StoredShape implements Serializable{
 
         private Shape shape;
         private Color color;
@@ -252,7 +272,7 @@ public class Canvas extends JPanel {
             return shape;
         }
     }
-    private static class TextNode {
+    public static class TextNode implements Serializable{
         String text;
         Point position;
         Color color;
@@ -263,5 +283,6 @@ public class Canvas extends JPanel {
             this.color = color;
         }
     }
+
 
 }
