@@ -40,5 +40,11 @@ public interface IClientRemote extends Remote {
         public void kickUser(String username, String roomId) throws RemoteException;
 
         public void getKicked() throws RemoteException;
+        public void close() throws RemoteException;
         public String getRoomId() throws RemoteException;
+        public void roomClosed() throws RemoteException;
+
+        public boolean request(String roomId) throws RemoteException;
+
+        public boolean handleRequest(String username) throws RemoteException;
 }

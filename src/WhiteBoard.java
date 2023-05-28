@@ -16,6 +16,7 @@ public class WhiteBoard extends JFrame{
     private Canvas canvas;
     private JPanel menuPanel;
     private String roomId;
+
     private ClientRemote clientRemote;
     private String currentTool;
     public WhiteBoard(){
@@ -74,7 +75,10 @@ public class WhiteBoard extends JFrame{
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     try{
-                        clientRemote.leave();
+                        if (!clientRemote.getIsAdmin()){
+                            clientRemote.leave();
+                        }
+
                         System.exit(0);
                     }catch (Exception x){
                         x.printStackTrace();
@@ -249,6 +253,7 @@ public class WhiteBoard extends JFrame{
     public void setClientRemote(ClientRemote clientRemote){
 
         this.clientRemote = clientRemote;
+        setTitle(clientRemote.getUsername());
     }
 
     public void getKicked(){
@@ -294,5 +299,12 @@ public class WhiteBoard extends JFrame{
     public void setUserList(String text){
         System.out.println("Seted" + text);
         userListBoard.setText(text);
+    }
+
+    public void unshow(){
+        setVisible(false);
+    }
+    public void shows(){
+        setVisible(true);
     }
 }

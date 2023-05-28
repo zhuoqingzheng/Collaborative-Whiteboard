@@ -4,10 +4,12 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-
+import java.rmi.server.UnicastRemoteObject;
 
 
 public class CreateWhiteboard {
+    private static Registry registry;
+    private static IRemoteBoard remoteBoard;
 
     public static void main(String[] args) {
 
@@ -20,10 +22,10 @@ public class CreateWhiteboard {
                 int port = Integer.parseInt(args[1]);
                 String username = args[2];
                 String roomID = args[3];
-                Registry registry = LocateRegistry.getRegistry(IPAdress,port);
+                registry = LocateRegistry.getRegistry(IPAdress,port);
 
                 //Retrieve the stub/proxy for the remote math object from the registry
-                IRemoteBoard remoteBoard = (IRemoteBoard) registry.lookup("JoinBoard");
+                remoteBoard = (IRemoteBoard) registry.lookup("JoinBoard");
 
                 if (remoteBoard.checkRoomExist(roomID)){
                     JOptionPane.showMessageDialog(null,"Room Already Exist");
@@ -43,6 +45,7 @@ public class CreateWhiteboard {
 
                 //whiteBoard.setClientRemote(clientRemote);
                 remoteBoard.addClient(clientRemote,roomID);
+                unbind(roomID);
             }
             else{
                 System.out.println("Wrong Command");
@@ -58,6 +61,20 @@ public class CreateWhiteboard {
             e.printStackTrace();
         }
 
+    }
+    private static void unbind(String roomId) {
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            try {
+                System.out.println("hahaha");
+                remoteBoard.shutdownRoom(roomId);
+
+                //registry.unbind("JoinBoard");
+                //UnicastRemoteObject.unexportObject(remoteBoard, true);
+                System.out.println("closed...");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }));
     }
 
 }

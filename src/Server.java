@@ -21,6 +21,7 @@ public class Server {
             //Publish the remote object's stub in the registry under the name "Compute"
 
             registry = LocateRegistry.getRegistry(Integer.parseInt(args[0]));
+
             //registry.unbind("JoinBoard");
             //registry.unbind("JoinBoard");
 
