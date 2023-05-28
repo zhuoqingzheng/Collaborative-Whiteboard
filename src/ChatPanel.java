@@ -22,7 +22,7 @@ public class ChatPanel extends JPanel {
     private void init() {
         chatHistory = new JTextArea(12,28);
         chatHistory.setEditable(false);
-
+        chatHistory.append("Chat History: \n" );
         chatInput = new JTextField();
 
         //chatHistory.setPreferredSize(new Dimension(100,200));

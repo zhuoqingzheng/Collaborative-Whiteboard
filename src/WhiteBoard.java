@@ -7,9 +7,12 @@ import java.util.ArrayList;
 
 
 public class WhiteBoard extends JFrame{
-    private JPanel panel;
+    private JPanel bottomPanel;
+    private JPanel topPanel;
     private JPanel panel2;
     private ChatPanel chatPanel;
+    private ArrayList<String> userList;
+    private JTextArea userListBoard;
     private Canvas canvas;
     private JPanel menuPanel;
     private String roomId;
@@ -24,38 +27,83 @@ public class WhiteBoard extends JFrame{
 
 
     public void initialize(){
-        setTitle("Frame One");
+        setTitle("WhiteBoard");
+        userList = new ArrayList<>();
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setSize(1000, 900);
         setLocationRelativeTo(null);
         setResizable(false);
-        panel = new JPanel();
-
+        bottomPanel = new JPanel();
+        topPanel = new JPanel();
         chatPanel = new ChatPanel();
         panel2 = new JPanel();
+
         BoxLayout boxLayout3 = new BoxLayout(chatPanel,BoxLayout.Y_AXIS);
         BoxLayout boxLayout = new BoxLayout(panel2, BoxLayout.Y_AXIS);
         chatPanel.setLayout(boxLayout3);
         panel2.setLayout(boxLayout);
         menuPanel = createToolMenu();
 
+        topPanel.setBackground(Color.lightGray);
+        topPanel.setLayout(new FlowLayout());
+        JButton btn1 = new JButton("New");
+        JButton btn2 = new JButton("Save");
+        JButton btn3 = new JButton("SaveAs");
+        JButton btn4 = new JButton("Open");
+        JButton btn5 = new JButton("Kick");
+
+        btn5.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String username = JOptionPane.showInputDialog("Kick User:");
+                if (username != null){
+                    try {
+                        clientRemote.kickUser(username,roomId);
+                    }catch (Exception c){
+                        c.printStackTrace();
+                    }
+
+                }
+            }
+        });
+
+
+        JButton btn6 = new JButton("Close");
+
+            btn6.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    try{
+                        clientRemote.leave();
+                        System.exit(0);
+                    }catch (Exception x){
+                        x.printStackTrace();
+                    }
+
+                }
+            });
 
 
 
-        panel.setSize(100,500);
-        panel.setBackground(Color.CYAN);
+        topPanel.add(btn1);
+        topPanel.add(btn2);
+        topPanel.add(btn3);
+        topPanel.add(btn4);
+        topPanel.add(btn5);
+        topPanel.add(btn6);
 
-        JTextArea textField = new JTextArea();
+        userListBoard = new JTextArea(15,20);
+
+
+        bottomPanel.setSize(100,500);
+        bottomPanel.setBackground(Color.CYAN);
+
+
         JTextField chatBox = new JTextField(30);
+        userListBoard.setEditable(false);
+        userListBoard.append("Current Users: \n");
 
-        textField.setText("Hello It is me Hello It is meHello It is meHello It is meHello It is\n meHello\n It is meHello It is meHello It is meHello It is meHello It is meHello It is meHello It is meHello It is meHello It is meHello It is meHello It is meHello It is meHello It is meHello It is meHello It is meHello It is meHello It is meHello \nIt is meHello It is meHello It is meHello It is meHello It is meHello It is meHello It is me");
-        //textField.setColumns(100);
-        textField.setPreferredSize(new Dimension(300,200));
-        //textField.setSize(100,100);
-        //textField.setMargin(new Insets(5,10,100,10));
-        //panel3.add(textField);
-        //panel3.add(Box.createVerticalStrut(40));
-        //panel3.add(chatBox);
+
 
         for (int i = 1; i<= 4; i++){
             JButton button = new JButton("Button " + Integer.toString((i)));
@@ -65,8 +113,9 @@ public class WhiteBoard extends JFrame{
             panel2.add(Box.createVerticalStrut(10));
 
         }
-        //panel.add(panel3);
-        panel.add(chatPanel);
+
+        bottomPanel.add(userListBoard);
+        bottomPanel.add(chatPanel);
         BorderLayout borderLayout = new BorderLayout();
         borderLayout.setHgap(10);
         borderLayout.setVgap(10);
@@ -78,7 +127,8 @@ public class WhiteBoard extends JFrame{
         //add(new JButton("CENTER"), BorderLayout.CENTER);
 
         //panel.setSize(100,500);
-        add(panel, BorderLayout.SOUTH);
+        add(topPanel,BorderLayout.NORTH);
+        add(bottomPanel, BorderLayout.SOUTH);
         add(canvas, BorderLayout.CENTER);
         //add(panel2,BorderLayout.SOUTH);
         add(menuPanel,BorderLayout.WEST);
@@ -200,6 +250,10 @@ public class WhiteBoard extends JFrame{
 
         this.clientRemote = clientRemote;
     }
+
+    public void getKicked(){
+        System.exit(0);
+    }
     public Canvas getCanvas() {
         return canvas;
     }
@@ -219,5 +273,26 @@ public class WhiteBoard extends JFrame{
     public void shutdown() {
         System.exit(0);
     }
+    public void updateUserList(ArrayList<String> list){
+        userList = list;
+        String text = "";
+        for (String item: list){
+            text = text + item + "\n";
+        }
+        userListBoard.setText(text);
+    }
+    public void addUser(String username){
+        userListBoard.append(username + "\n");
+        System.out.println("2:" + userListBoard.getText());
+    }
 
+    public JTextArea getUserListBoard() {
+        System.out.println("3:" + userListBoard.getText());
+        return userListBoard;
+    }
+
+    public void setUserList(String text){
+        System.out.println("Seted" + text);
+        userListBoard.setText(text);
+    }
 }

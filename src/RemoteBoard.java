@@ -2,6 +2,7 @@ import java.awt.*;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.HashMap;
 import java.lang.Thread;
 
@@ -30,26 +31,60 @@ public class RemoteBoard extends UnicastRemoteObject implements IRemoteBoard {
             newList.add(client.getUsername());
 
             rooms.put(roomId, newList);
+            client.updateUserList(newList);
         }
         else{
             ArrayList<String> users = rooms.get(roomId);
             users.add(client.getUsername());
             rooms.put(roomId,users);
+            for (IClientRemote cli: clients){
+                System.out.println("11111111111111111");
+                cli.updateUserList(users);
+                if (cli.getUsername().equals(users.get(0))){
+                    System.out.println("Admin content: " + cli.getUserList().getText());
+                    client.setUserList(cli.getUserList().getText());
+                }
+
+            }
+
         }
 
+
         clients.add(client);
+
         System.out.println("Num of Clients: " + clients.size());
         System.out.println("Keys: " + rooms.keySet());
         System.out.println("Keys: " + rooms.values());
     }
     @Override
-    public void deleteClient(IClientRemote client) throws  RemoteException{
-        clients.add(client);
-        for (IClientRemote elem: clients){
-            if (elem.getUsername().equals(client.getUsername())){
-                clients.remove(elem);
+    public void deleteClient(String username) throws  RemoteException{
+        Iterator<IClientRemote> clientIter = clients.iterator();
+        while (clientIter.hasNext()) {
+            IClientRemote item = clientIter.next();
+
+            if (username.equals(item.getUsername())) {
+
+                if(item.getIsAdmin()){
+
+                    rooms.remove(item.getRoomId());
+                }
+                if(!item.getIsAdmin()){
+                    ArrayList<String> usernames = rooms.get(item.getRoomId());
+                    usernames.remove(username);
+                    for (IClientRemote client: clients){
+                        if (usernames.contains(client.getUsername())){
+                            client.updateUserList(usernames);
+                        }
+                    }
+                    rooms.put(item.getRoomId(),usernames);
+                }
+
+                //System.out.println("IN DEL, FOUND ROOMID" + item.getRoomId());
+                clientIter.remove();
             }
         }
+
+
         System.out.println("Num of Clients: " + clients.size());
     }
 
@@ -108,6 +143,51 @@ public class RemoteBoard extends UnicastRemoteObject implements IRemoteBoard {
             }
         }
         return false;
+    }
+
+
+    @Override
+    public Boolean checkUserExistInRoom(String username,String roomId) throws RemoteException{
+        System.out.println("ROOM ID:" + roomId);
+        ArrayList<String> usernames = rooms.get(roomId);
+        System.out.println(usernames);
+        return usernames.contains(username);
+
+
+    }
+
+    @Override
+    public void kickUser(String username, String roomId) throws  RemoteException{
+        System.out.println("NO");
+        try{
+            Iterator<IClientRemote> clientIter = clients.iterator();
+            while (clientIter.hasNext()) {
+                IClientRemote item = clientIter.next();
+
+                if (username.equals(item.getUsername())) {
+                    System.out.println("IN DEL, FOUND Clients NUM" + clients.size());
+
+                    ArrayList<String> usernames = rooms.get(item.getRoomId());
+                    usernames.remove(username);
+                    for (IClientRemote client: clients){
+                        System.out.println("Lewis Get In There!");
+                        if (usernames.contains(client.getUsername())){
+                            client.updateUserList(usernames);
+                        }
+                    }
+                    rooms.put(item.getRoomId(),usernames);
+                    clientIter.remove();
+                    item.getKicked();
+                }
+            }
+
+
+        }catch (Exception e){
+            System.out.println(clients.size());
+            e.printStackTrace();
+        }
+
+
     }
 
     @Override

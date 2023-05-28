@@ -35,7 +35,7 @@ public class JoinWhiteboard {
                 }
                 WhiteBoard whiteBoard = new WhiteBoard();
                 whiteBoard.setCanvas(remoteBoard.getShapes(roomID),remoteBoard.getTexts(roomID));
-                ClientRemote clientRemote = new ClientRemote(username,whiteBoard, remoteBoard,false);
+                ClientRemote clientRemote = new ClientRemote(username,whiteBoard, remoteBoard,false,roomID);
 
                 //whiteBoard.setClientRemote(clientRemote);
                 remoteBoard.addClient(clientRemote,roomID);

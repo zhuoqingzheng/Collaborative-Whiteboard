@@ -6,7 +6,7 @@ import java.util.ArrayList;
 public interface IRemoteBoard extends Remote {
 
     public void addClient(IClientRemote client, String roomId) throws RemoteException;
-    public void deleteClient(IClientRemote client) throws RemoteException;
+    public void deleteClient(String username) throws RemoteException;
     public void addShape(Shape shape, Color color) throws  RemoteException;
     public void addText(String text, Point position, Color color) throws  RemoteException;
     public void addChat(String username, String msg) throws RemoteException;
@@ -16,5 +16,6 @@ public interface IRemoteBoard extends Remote {
     public Boolean checkUserExist(String username) throws RemoteException;
     public Boolean checkRoomExist(String roomId) throws RemoteException;
     public void shutdown() throws RemoteException;
-
+    public Boolean checkUserExistInRoom(String username,String roomId) throws RemoteException;
+    public void kickUser(String username, String roomId) throws RemoteException;
 }

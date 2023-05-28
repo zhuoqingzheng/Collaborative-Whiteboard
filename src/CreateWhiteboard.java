@@ -39,7 +39,7 @@ public class CreateWhiteboard {
 
                 WhiteBoard whiteBoard = new WhiteBoard();
 
-                ClientRemote clientRemote = new ClientRemote(args[2],whiteBoard, remoteBoard,true);
+                ClientRemote clientRemote = new ClientRemote(args[2],whiteBoard, remoteBoard,true,roomID);
 
                 //whiteBoard.setClientRemote(clientRemote);
                 remoteBoard.addClient(clientRemote,roomID);

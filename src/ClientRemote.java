@@ -15,9 +15,10 @@ public class ClientRemote extends UnicastRemoteObject implements IClientRemote {
     private WhiteBoard whiteboard;  // a GUI class representing the whiteboard
     private String username;
     private IRemoteBoard remoteBoard;
+    private String roomId;
 
     private Boolean isAdmin;
-    public ClientRemote(String username, WhiteBoard whiteboard, IRemoteBoard remoteBoard,Boolean isAdmin) throws RemoteException {
+    public ClientRemote(String username, WhiteBoard whiteboard, IRemoteBoard remoteBoard,Boolean isAdmin, String roomId) throws RemoteException {
         this.whiteboard = whiteboard;
         this.remoteBoard = remoteBoard;
         this.isAdmin = isAdmin;
@@ -25,6 +26,7 @@ public class ClientRemote extends UnicastRemoteObject implements IClientRemote {
         this.whiteboard.getCanvas().setClientRemote(this);
         this.whiteboard.getChatPanel().setClientRemote(this);
         this.username = username;
+        this.roomId = roomId;
         whiteboard.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
@@ -99,4 +101,51 @@ public class ClientRemote extends UnicastRemoteObject implements IClientRemote {
         whiteboard.shutdown();
         //System.exit(0);
     }
+
+    @Override
+    public void updateUserList(ArrayList<String> list) throws  RemoteException{
+        whiteboard.updateUserList(list);
+    }
+
+
+    @Override
+    public JTextArea getUserList() throws RemoteException{
+        return whiteboard.getUserListBoard();
+
+    }
+
+    @Override
+    public void setUserList(String text) throws RemoteException{
+        whiteboard.setUserList(text);
+    }
+
+    @Override
+    public void leave() throws RemoteException{
+        remoteBoard.deleteClient(username);
+    };
+
+    @Override
+    public void kickUser(String username, String room) throws RemoteException{
+        System.out.println("CheckBoolean: " + remoteBoard.checkUserExistInRoom(username,roomId));
+        if (remoteBoard.checkUserExistInRoom(username,roomId)){
+            System.out.println("okok");
+            remoteBoard.kickUser(username, roomId);
+        }
+    }
+
+    @Override
+    public void getKicked() throws RemoteException{
+        System.out.println("I am kicked!");
+        JOptionPane.showMessageDialog(null,"You are kicked out of the room: ");
+
+        //whiteboard.getKicked();
+        UnicastRemoteObject.unexportObject(this, true);
+        System.exit(0);
+    }
+
+    @Override
+    public String getRoomId() throws RemoteException{
+        return roomId;
+    }
+
 }
