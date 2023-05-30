@@ -39,13 +39,13 @@ public class CreateWhiteboard {
 
 
 
-                WhiteBoard whiteBoard = new WhiteBoard();
+                WhiteBoard whiteBoard = new WhiteBoard(true);
 
                 ClientRemote clientRemote = new ClientRemote(args[2],whiteBoard, remoteBoard,true,roomID);
 
                 //whiteBoard.setClientRemote(clientRemote);
                 remoteBoard.addClient(clientRemote,roomID);
-                unbind(roomID);
+                unbind(roomID,username);
             }
             else{
                 System.out.println("Wrong Command");
@@ -62,12 +62,13 @@ public class CreateWhiteboard {
         }
 
     }
-    private static void unbind(String roomId) {
+    /** if the manager left, close all boards in the room **/
+    private static void unbind(String roomId,String username) {
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             try {
-                System.out.println("hahaha");
-                remoteBoard.shutdownRoom(roomId);
 
+                remoteBoard.shutdownRoom(roomId);
+                remoteBoard.deleteRoom(roomId,username);
                 //registry.unbind("JoinBoard");
                 //UnicastRemoteObject.unexportObject(remoteBoard, true);
                 System.out.println("closed...");

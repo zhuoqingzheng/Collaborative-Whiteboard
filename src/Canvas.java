@@ -24,9 +24,7 @@ public class Canvas extends JPanel {
     private String text;
     public Canvas() {
 
-        if (clientRemote == null){
-            System.out.println("********************123");
-        }
+
         setPreferredSize(new Dimension(400, 300));
         currentColor = Color.BLACK;
         currentTool = "LINE";
@@ -55,7 +53,7 @@ public class Canvas extends JPanel {
                 }else {
                     createShape();
                 }
-                //System.out.println(testEnt.text);
+
 
             }
 
@@ -81,7 +79,7 @@ public class Canvas extends JPanel {
                     shapes.add(new StoredShape(currentShape, currentColor));
                     try{
                         if (currentShape != null){
-                            System.out.println(clientRemote);
+
                             clientRemote.updateServer(currentShape, currentColor);
                         }
                     }catch (Exception f){
@@ -109,7 +107,7 @@ public class Canvas extends JPanel {
 
             if (currentShape != null) {
                 g2d.setColor(currentColor);
-                //System.out.println("LOLOLOL");
+
 
                 //drawResizingShape(g2d, startPoint, endPoint);
                 g2d.draw(currentShape);
@@ -208,18 +206,18 @@ public class Canvas extends JPanel {
     }
 
     public void setClientRemote(IClientRemote clientRemote) {
-        System.out.println("set client remote");
-        System.out.println(clientRemote);
+
+
         this.clientRemote = clientRemote;
     }
 
     public void setTool(String tool){
         currentTool = tool;
-        System.out.println(currentTool);
+
     }
     public void setColor(Color color){
         currentColor = color;
-        //System.out.println(currentColor);
+
     }
     public void draw(String s){
         texts.add(new TextNode(s,new Point(100,100),Color.CYAN));
@@ -229,14 +227,13 @@ public class Canvas extends JPanel {
     public void addShape(Shape shape, Color color){
 
         shapes.add(new StoredShape(shape,color));
-        System.out.println("00000000000000000000");
-        System.out.println(shape);
+
         repaint();
     }
     public void addText(String text, Point position, Color color){
 
         texts.add(new TextNode(text,position,color));
-        System.out.println("Text ADDED");
+
 
         repaint();
     }
@@ -246,6 +243,15 @@ public class Canvas extends JPanel {
         this.texts = texts;
         repaint();
     }
+    public void setBlank(){
+
+        currentShape = null;
+
+        this.shapes = new ArrayList<>();
+        this.texts = new ArrayList<>();
+        repaint();
+    }
+
 
     public ArrayList<StoredShape> getShapes(){
         return shapes;
@@ -272,7 +278,7 @@ public class Canvas extends JPanel {
             return shape;
         }
     }
-    public static class TextNode implements Serializable{
+    public class TextNode implements Serializable{
         String text;
         Point position;
         Color color;
@@ -283,6 +289,8 @@ public class Canvas extends JPanel {
             this.color = color;
         }
     }
+
+
 
 
 }

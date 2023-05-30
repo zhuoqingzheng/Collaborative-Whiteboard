@@ -9,7 +9,9 @@ import java.awt.event.MouseEvent;
 import java.awt.geom.*;
 import java.util.ArrayList;
 
-
+/**
+ * Client side implementation of the remote interface.
+ */
 
 public class ClientRemote extends UnicastRemoteObject implements IClientRemote {
     private WhiteBoard whiteboard;  // a GUI class representing the whiteboard
@@ -36,13 +38,15 @@ public class ClientRemote extends UnicastRemoteObject implements IClientRemote {
         });
 
     }
+
+    /** update the server that new shape is added **/
     @Override
     public void updateServer(Shape shape, Color color) throws RemoteException {
         //whiteboard.drawShape(s);
-        remoteBoard.addShape(shape,color);
+        remoteBoard.addShape(shape,color, roomId);
 
     }
-
+    /** update client to get new shape from other users **/
     @Override
     public void updateClient(Shape shape, Color color) throws RemoteException{
         whiteboard.addShape(shape,color);
@@ -54,21 +58,22 @@ public class ClientRemote extends UnicastRemoteObject implements IClientRemote {
         return username;
     }
 
+    /** send text **/
     @Override
     public void sendText(String text, Point position,Color color) throws RemoteException{
-        remoteBoard.addText(text, position, color);
+        remoteBoard.addText(text, position, color, roomId);
     }
-
+    /** client receive new text (not chat) **/
     @Override
     public void receiveText(String text, Point position, Color color) throws RemoteException{
         whiteboard.addText(text, position, color);
     }
-
+    /** client sends server a chat msg **/
     @Override
     public void sendChat(String msg) throws RemoteException{
-        remoteBoard.addChat(username,msg);
+        remoteBoard.addChat(username,msg,roomId);
     }
-
+    /** client receive new msg **/
     @Override
     public void updateChat(String newMsg){
         whiteboard.updateChat(newMsg);
@@ -134,9 +139,9 @@ public class ClientRemote extends UnicastRemoteObject implements IClientRemote {
 
     @Override
     public void kickUser(String username, String room) throws RemoteException{
-        System.out.println("CheckBoolean: " + remoteBoard.checkUserExistInRoom(username,roomId));
+
         if (remoteBoard.checkUserExistInRoom(username,roomId)){
-            System.out.println("okok");
+            /** assign threads so other operations are not blocked **/
             new Thread(
                     ()->{
                         try {
@@ -151,6 +156,7 @@ public class ClientRemote extends UnicastRemoteObject implements IClientRemote {
         }
     }
 
+    /** manager handle join request **/
     @Override
     public boolean handleRequest(String username) throws RemoteException{
         boolean[] answers = new boolean[1];
@@ -164,15 +170,17 @@ public class ClientRemote extends UnicastRemoteObject implements IClientRemote {
         return answers[0];
     }
 
+    /** client is kicked out of the room **/
     @Override
     public void getKicked() throws RemoteException{
-        System.out.println("I am kicked!");
+
         JOptionPane.showMessageDialog(null,"You are kicked out of the room: ");
         whiteboard.unshow();
         //whiteboard.getKicked();
         UnicastRemoteObject.unexportObject(this, true);
         ;System.exit(0);
     }
+
 
     @Override
     public String getRoomId() throws RemoteException{
@@ -185,16 +193,29 @@ public class ClientRemote extends UnicastRemoteObject implements IClientRemote {
      //   whiteboard.setVisible(false);
     // }
 
+    /** close the whiteboard **/
     @Override
     public void close() throws RemoteException{
         UnicastRemoteObject.unexportObject(this, true);
         System.exit(0);
     }
 
-
+    /** client sends join request **/
     @Override
     public boolean request(String roomId) throws RemoteException{
         return remoteBoard.request(roomId, username);
     }
+
+    /** clear the board for new board **/
+    @Override
+    public void clearBoard() throws RemoteException{
+        remoteBoard.clearBoard(roomId);
+    }
+
+    @Override
+    public void getClearedBoard() throws RemoteException{
+        whiteboard.getCanvas().setBlank();
+    }
+
 
 }

@@ -9,9 +9,6 @@ import java.lang.Thread;
 
 /**
  * Server side implementation of the remote interface.
- * Must extend UnicastRemoteObject, to allow the JVM to create a
- * remote proxy/stub.
- *
  */
 public class RemoteBoard extends UnicastRemoteObject implements IRemoteBoard {
 
@@ -24,6 +21,7 @@ public class RemoteBoard extends UnicastRemoteObject implements IRemoteBoard {
 
     }
 
+    /** add a new client to the arraylist clients and hashmap<roomId, usernames in the room > rooms,  **/
     @Override
     public void addClient(IClientRemote client,String roomId) throws  RemoteException{
         if (client.getIsAdmin()){
@@ -38,10 +36,10 @@ public class RemoteBoard extends UnicastRemoteObject implements IRemoteBoard {
             users.add(client.getUsername());
             rooms.put(roomId,users);
             for (IClientRemote cli: clients){
-                System.out.println("11111111111111111");
+
                 cli.updateUserList(users);
                 if (cli.getUsername().equals(users.get(0))){
-                    System.out.println("Admin content: " + cli.getUserList().getText());
+
                     client.setUserList(cli.getUserList().getText());
                 }
 
@@ -52,10 +50,10 @@ public class RemoteBoard extends UnicastRemoteObject implements IRemoteBoard {
 
         clients.add(client);
 
-        System.out.println("Num of Clients: " + clients.size());
-        System.out.println("Keys: " + rooms.keySet());
-        System.out.println("Keys: " + rooms.values());
+
     }
+
+    /** after a client closes the whiteboard or get kicked out, delete the client **/
     @Override
     public void deleteClient(String username) throws  RemoteException{
         Iterator<IClientRemote> clientIter = clients.iterator();
@@ -69,9 +67,9 @@ public class RemoteBoard extends UnicastRemoteObject implements IRemoteBoard {
                 if(item.getIsAdmin()){
                     //item.unshow();
                     ArrayList<String> usernames = rooms.get(item.getRoomId());
-                    System.out.println(usernames);
+
                     for (IClientRemote elem: clients){
-                        System.out.println("Executed!");
+
                         if (usernames.contains(elem.getUsername()) && !elem.getIsAdmin()){
                                     newClients.add(elem);
 
@@ -94,24 +92,27 @@ public class RemoteBoard extends UnicastRemoteObject implements IRemoteBoard {
                     rooms.put(item.getRoomId(),usernames);
                 }
 
-                //System.out.println("IN DEL, FOUND ROOMID" + item.getRoomId());
                 clientIter.remove();
             }
         }
         for (IClientRemote c: newClients){
-            System.out.println("11111111111111111111");
+
             kickUser(c.getUsername(),c.getRoomId());
         }
 
-        System.out.println("Num of Clients: " + clients.size());
+
     }
-
+    /** update clients in the same room with new drawings **/
     @Override
-    public  void addShape(Shape shape, Color color){
+    public  void addShape(Shape shape, Color color, String roomId){
         try {
-            for (IClientRemote client: clients){
+            ArrayList<String> usernames = rooms.get(roomId);
 
-                client.updateClient(shape, color);
+            for (IClientRemote client: clients){
+                if (usernames.contains(client.getUsername())){
+                    client.updateClient(shape, color);
+                }
+
 
 
             }
@@ -122,24 +123,31 @@ public class RemoteBoard extends UnicastRemoteObject implements IRemoteBoard {
 
 
     }
-
+    /** update clients in the same room with new texts **/
     @Override
-    public void addText(String text, Point position, Color color){
+    public void addText(String text, Point position, Color color,String roomId){
         try{
+            ArrayList<String> usernames = rooms.get(roomId);
             for (IClientRemote client: clients){
-                client.receiveText(text, position, color);
+                if (usernames.contains(client.getUsername())){
+                    client.receiveText(text, position, color);
+                }
+
             }
         }catch (Exception e){
             e.printStackTrace();
         }
     }
-
+    /** update clients in the same room with new chat **/
     @Override
-    public void addChat(String username, String msg){
+    public void addChat(String username, String msg,String roomId){
         try{
             String newMsg = username + ": " + msg + "\n";
+            ArrayList<String> usernames = rooms.get(roomId);
             for (IClientRemote client: clients){
-                client.updateChat(newMsg);
+                if (usernames.contains(client.getUsername())) {
+                    client.updateChat(newMsg);
+                }
             }
         }catch (Exception e){
             e.printStackTrace();
@@ -154,9 +162,9 @@ public class RemoteBoard extends UnicastRemoteObject implements IRemoteBoard {
     @Override
     public Boolean checkUserExist(String username) throws RemoteException{
         for (IClientRemote client: clients){
-            System.out.println("found: "+client.getUsername());
+
             if ((client.getUsername()).equals(username)){
-                //System.out.println("found: "+client.getUsername());
+
                 return true;
             }
         }
@@ -166,42 +174,43 @@ public class RemoteBoard extends UnicastRemoteObject implements IRemoteBoard {
 
     @Override
     public Boolean checkUserExistInRoom(String username,String roomId) throws RemoteException{
-        System.out.println("ROOM ID:" + roomId);
+
         ArrayList<String> usernames = rooms.get(roomId);
-        System.out.println(usernames);
+
         return usernames.contains(username);
 
 
     }
-
+    /** kick out a user from room and server **/
     @Override
     public void kickUser(String username, String roomId) throws  RemoteException{
-        System.out.println("NO");
+
         try{
             Iterator<IClientRemote> clientIter = clients.iterator();
             while (clientIter.hasNext()) {
                 IClientRemote item = clientIter.next();
 
                 if (username.equals(item.getUsername())) {
-                    System.out.println("IN DEL, FOUND Clients NUM" + clients.size());
+
 
                     ArrayList<String> usernames = rooms.get(item.getRoomId());
                     usernames.remove(username);
                     for (IClientRemote client: clients){
-                        System.out.println("Lewis Get In There!");
+
                         if (usernames.contains(client.getUsername())){
                             client.updateUserList(usernames);
                         }
                     }
                     rooms.put(item.getRoomId(),usernames);
                     clientIter.remove();
+                    /** notify the kicked client **/
                     item.getKicked();
                 }
             }
 
 
         }catch (Exception e){
-            System.out.println(clients.size());
+
             e.printStackTrace();
         }
 
@@ -211,10 +220,10 @@ public class RemoteBoard extends UnicastRemoteObject implements IRemoteBoard {
     @Override
     public ArrayList<Canvas.StoredShape> getShapes(String roomId) throws RemoteException{
         String admin = rooms.get(roomId).get(0);
-        System.out.println("Check: " + rooms.get(roomId).get(0));
+
         for (IClientRemote client: clients){
             if (client.getUsername().equals(admin)){
-                System.out.println("Admin: " + admin);
+
                 return client.getShapes(roomId);
             }
         }
@@ -224,10 +233,10 @@ public class RemoteBoard extends UnicastRemoteObject implements IRemoteBoard {
     @Override
     public ArrayList<Canvas.TextNode> getTexts(String roomId) throws RemoteException{
         String admin = rooms.get(roomId).get(0);
-        System.out.println("Check: " + rooms.get(roomId).get(0));
+
         for (IClientRemote client: clients){
             if (client.getUsername().equals(admin)){
-                System.out.println("Admin: " + admin);
+
                 return client.getTexts(roomId);
             }
         }
@@ -240,11 +249,11 @@ public class RemoteBoard extends UnicastRemoteObject implements IRemoteBoard {
             }
             return false;
     }
-
+    /** if the server terminated, shut down all rooms **/
     @Override
     public void shutdown() throws RemoteException{
         ArrayList<Thread> threads = new ArrayList<>();
-
+        //create threads for each operation to avoid errors
         for (IClientRemote client : clients) {
             Thread t = new Thread(() -> {
                 try {
@@ -263,6 +272,8 @@ public class RemoteBoard extends UnicastRemoteObject implements IRemoteBoard {
         //System.exit(0);
 
     }
+
+    /** shut down a room if the manager left **/
     @Override
     public void shutdownRoom(String roomId) throws RemoteException{
         ArrayList<String> usernames = rooms.get(roomId);
@@ -281,6 +292,8 @@ public class RemoteBoard extends UnicastRemoteObject implements IRemoteBoard {
                 try {
                     c.roomClosed();
                     deleteClient(c.getUsername());
+                    //rooms.remove(roomId);
+
                 } catch (RemoteException e) {
 
                 }
@@ -290,16 +303,12 @@ public class RemoteBoard extends UnicastRemoteObject implements IRemoteBoard {
             threads.add(t);
         }
 
-        for (Thread t : threads) {
-            try {
-                t.join();
-            } catch (Exception e) {
 
-            }
-        }
 
 
     }
+
+    /** join request handling **/
     public boolean request(String roomId, String username) throws RemoteException{
         ArrayList<String> usernames = rooms.get(roomId);
         String adminName = usernames.get(0);
@@ -309,6 +318,31 @@ public class RemoteBoard extends UnicastRemoteObject implements IRemoteBoard {
             }
         }
         return false;
+    }
+
+    public void clearBoard(String roomId) throws RemoteException{
+        ArrayList<String> usernames = rooms.get(roomId);
+        for (IClientRemote client: clients){
+            if (usernames.contains(client.getUsername())){
+                client.getClearedBoard();
+            }
+        }
+    }
+
+    public void deleteRoom(String roomId,String username) throws RemoteException{
+
+        IClientRemote admin = null;
+        for(IClientRemote client: clients){
+            if (username.equals(client.getUsername())){
+                admin = client;
+                break;
+            }
+        }
+        if (admin!=null){
+            clients.remove(admin);
+        }
+
+        rooms.remove(roomId);
     }
 
 

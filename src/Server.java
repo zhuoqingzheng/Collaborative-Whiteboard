@@ -37,7 +37,7 @@ public class Server {
         }
 
     }
-
+    /** handle server shutdown **/
     private static void unbind() {
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             try {

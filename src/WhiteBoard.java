@@ -1,10 +1,15 @@
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.JFrame;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 
+import java.nio.file.*;
 
 public class WhiteBoard extends JFrame{
     private JPanel bottomPanel;
@@ -16,12 +21,16 @@ public class WhiteBoard extends JFrame{
     private Canvas canvas;
     private JPanel menuPanel;
     private String roomId;
+    private String fileName;
+    private boolean isAdmin;
+    private String path;
 
     private ClientRemote clientRemote;
     private String currentTool;
-    public WhiteBoard(){
-        System.out.println("WhiteBoards" + clientRemote);
+    public WhiteBoard(Boolean isAdmin){
+
         canvas = new Canvas();
+        this.isAdmin = isAdmin;
         initialize();
     }
 
@@ -47,9 +56,43 @@ public class WhiteBoard extends JFrame{
 
         topPanel.setBackground(Color.lightGray);
         topPanel.setLayout(new FlowLayout());
+
         JButton btn1 = new JButton("New");
+
+        btn1.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                save();
+
+                canvas.setBlank();
+                try{
+                    clientRemote.clearBoard();
+                }catch (Exception j){
+                    j.printStackTrace();
+                }
+
+            }
+        });
+
+
+
         JButton btn2 = new JButton("Save");
+        btn2.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                save();
+            }
+        });
+
+
         JButton btn3 = new JButton("SaveAs");
+        btn3.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                saveAs();
+            }
+        });
+
         JButton btn4 = new JButton("Open");
         JButton btn5 = new JButton("Kick");
 
@@ -88,12 +131,14 @@ public class WhiteBoard extends JFrame{
             });
 
 
+        if (isAdmin){
+            topPanel.add(btn1);
+            topPanel.add(btn2);
+            topPanel.add(btn3);
+            topPanel.add(btn4);
+            topPanel.add(btn5);
+        }
 
-        topPanel.add(btn1);
-        topPanel.add(btn2);
-        topPanel.add(btn3);
-        topPanel.add(btn4);
-        topPanel.add(btn5);
         topPanel.add(btn6);
 
         userListBoard = new JTextArea(15,20);
@@ -280,7 +325,7 @@ public class WhiteBoard extends JFrame{
     }
     public void updateUserList(ArrayList<String> list){
         userList = list;
-        String text = "";
+        String text = "Online Users: \n";
         for (String item: list){
             text = text + item + "\n";
         }
@@ -288,16 +333,16 @@ public class WhiteBoard extends JFrame{
     }
     public void addUser(String username){
         userListBoard.append(username + "\n");
-        System.out.println("2:" + userListBoard.getText());
+
     }
 
     public JTextArea getUserListBoard() {
-        System.out.println("3:" + userListBoard.getText());
+
         return userListBoard;
     }
 
     public void setUserList(String text){
-        System.out.println("Seted" + text);
+
         userListBoard.setText(text);
     }
 
@@ -306,5 +351,47 @@ public class WhiteBoard extends JFrame{
     }
     public void shows(){
         setVisible(true);
+    }
+    /** save the whiteboard as a file **/
+    public void saveAs(){
+        new Thread(()->{
+            fileName = JOptionPane.showInputDialog("Choose FileName");
+            path = JOptionPane.showInputDialog("ChooseFilePath");
+            if (fileName != null && path!=null){
+                Path filePath = Paths.get(path);
+                if (Files.exists(filePath)){
+                    try {
+                        BufferedImage image = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_INT_RGB);
+                        paint(image.getGraphics());
+                        ImageIO.write(image, "png", new File(path +fileName+".png"));
+                        JOptionPane.showMessageDialog(null,"Sucess!");
+                    }catch (IOException b){
+                        JOptionPane.showMessageDialog(null,"Unsuccess Save");
+                        b.printStackTrace();
+                    }
+                }else{
+                    JOptionPane.showMessageDialog(null,"Unsuccess Save");
+                }
+            }
+
+
+        }).start();
+    }
+
+
+    public void save(){
+        if (fileName!=null && path != null){
+            try {
+                BufferedImage image = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_INT_RGB);
+                paint(image.getGraphics());
+                ImageIO.write(image, "png", new File(path +fileName+".png"));
+                JOptionPane.showMessageDialog(null,"Sucess!");
+            }catch (IOException b){
+                JOptionPane.showMessageDialog(null,"Unsuccess Save");
+                b.printStackTrace();
+            }
+        } else{
+            saveAs();
+        }
     }
 }

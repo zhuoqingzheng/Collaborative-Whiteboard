@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="Collaborative-Whiteboard:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/Collaborative_Whiteboard_jar</output-path>
+    <root id="archive" name="Collaborative-Whiteboard.jar">
+      <element id="module-output" name="Collaborative-Whiteboard" />
+    </root>
+  </artifact>
+</component>

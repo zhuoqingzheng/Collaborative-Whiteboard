@@ -5,6 +5,7 @@ import java.rmi.RemoteException;
 import java.util.ArrayList;
 
 public interface IClientRemote extends Remote {
+
         public void updateServer(Shape shape, Color color) throws RemoteException;
 
         public void updateClient(Shape shape, Color color) throws RemoteException;
@@ -18,6 +19,7 @@ public interface IClientRemote extends Remote {
         public void sendChat(String meg) throws RemoteException;
 
         public void updateChat(String newMsg) throws RemoteException;
+
 
         public boolean getIsAdmin() throws RemoteException;
 
@@ -47,4 +49,7 @@ public interface IClientRemote extends Remote {
         public boolean request(String roomId) throws RemoteException;
 
         public boolean handleRequest(String username) throws RemoteException;
+
+        public void clearBoard() throws RemoteException;
+        public void getClearedBoard() throws RemoteException;
 }

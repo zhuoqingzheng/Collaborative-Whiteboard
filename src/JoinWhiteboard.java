@@ -29,13 +29,13 @@ public class JoinWhiteboard {
                     System.exit(0);
                 }
                 if (remoteBoard.checkUserExist(username)){
-                    System.out.println("-----------------------");
+
                     JOptionPane.showMessageDialog(null,"Username Already Exist");
                     System.exit(0);
                 }
 
 
-                WhiteBoard whiteBoard = new WhiteBoard();
+                WhiteBoard whiteBoard = new WhiteBoard(false);
                 whiteBoard.unshow();
                 Thread t =new Thread(() -> {JOptionPane.showMessageDialog(null,"Waiting for Connection");});
                 t.start();
@@ -44,7 +44,7 @@ public class JoinWhiteboard {
                 ClientRemote clientRemote = new ClientRemote(username,whiteBoard, remoteBoard,false,roomID);
                 if (clientRemote.request(roomID)){
                     /** if the request is approved, close the message dialog **/
-                    t.interrupt(); 
+                    t.interrupt();
                     whiteBoard.shows();
                     whiteBoard.setCanvas(remoteBoard.getShapes(roomID),remoteBoard.getTexts(roomID));
                     remoteBoard.addClient(clientRemote,roomID);
@@ -56,9 +56,7 @@ public class JoinWhiteboard {
 
 
             }
-            else{
-                System.out.println("Wrong Command");
-            }
+
 
 
         }catch(Exception e) {
